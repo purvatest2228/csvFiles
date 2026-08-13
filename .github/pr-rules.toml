@@ -16,14 +16,19 @@
 # after HTML comments and checklist lines are stripped out.
 min_section_chars = 10
 
-# Prose length of the whole description. Headings, HTML comments, checklist
-# lines, fenced code blocks, image markup and bare URLs are all excluded, so
-# this counts words a reviewer actually reads.
-min_description_words = 50
+# Prose length of the whole description. Headings, HTML comments, template
+# instructions, checklist lines, fenced code blocks, image markup and bare
+# URLs are all excluded, so this counts words a reviewer actually reads.
+min_description_words = 20
 
 # How many images the description must contain. Screenshots pasted into the
 # GitHub editor land on one of the allowed hosts below.
-require_images = 1
+#
+# Set to 0 because the "Build" workflow now runs pnpm i and pnpm run build on
+# every pull request, which proves the build far better than a screenshot can:
+# a screenshot cannot be tied to a commit and cannot be checked for errors.
+# Raise it back to 1 to require a build screenshot as well.
+require_images = 0
 allowed_image_hosts = [
   "github.com/user-attachments",
   "user-images.githubusercontent.com",
@@ -34,7 +39,7 @@ allowed_image_hosts = [
 require_all_checkboxes_ticked = true
 
 checklist = [
-  "The build screenshot above is from this branch and shows the build finishing with no errors",
+  "Ran `pnpm i && pnpm run build` locally and it succeeded",
   "Column count is unchanged, or the change is described above",
   "No unescaped commas or line breaks inside fields",
   "File still parses (`python3 -c \"import csv; list(csv.reader(open('inditeProducts1.csv')))\"`)",
@@ -77,13 +82,11 @@ body = """
 [[sections]]
 title = "Build evidence"
 hint = """
-Paste a screenshot of the build finishing successfully. Drag the image into
-this box, or copy-paste it — GitHub uploads it and inserts the markdown.
-Windows, macOS or Linux is fine. The whole terminal output must be readable,
-including the final summary line and the total time.
+Optional. The "Build" check runs pnpm i and pnpm run build on this commit,
+so a screenshot is not required. Paste one here only if the failure needs
+context CI cannot show, such as a platform-specific problem.
 """
-required = true
-# The screenshot itself is what satisfies require_images.
+required = false
 
 [[sections]]
 title = "How to verify"

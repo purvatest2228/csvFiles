@@ -1,0 +1,10 @@
+{
+  "name": "csv-files",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Product catalog CSV feeds",
+  "packageManager": "pnpm@10.30.3",
+  "scripts": {
+    "build": "node scripts/build.js"
+  }
+}

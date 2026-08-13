@@ -25,10 +25,9 @@
 
 ## Build evidence
 
-<!-- Paste a screenshot of the build finishing successfully. Drag the image into
-this box, or copy-paste it — GitHub uploads it and inserts the markdown.
-Windows, macOS or Linux is fine. The whole terminal output must be readable,
-including the final summary line and the total time.
+<!-- Optional. The "Build" check runs pnpm i and pnpm run build on this commit,
+so a screenshot is not required. Paste one here only if the failure needs
+context CI cannot show, such as a platform-specific problem.
  -->
 
 
@@ -47,7 +46,7 @@ including the final summary line and the total time.
 
 ## Checklist
 
-- [ ] The build screenshot above is from this branch and shows the build finishing with no errors
+- [ ] Ran `pnpm i && pnpm run build` locally and it succeeded
 - [ ] Column count is unchanged, or the change is described above
 - [ ] No unescaped commas or line breaks inside fields
 - [ ] File still parses (`python3 -c "import csv; list(csv.reader(open('inditeProducts1.csv')))"`)
