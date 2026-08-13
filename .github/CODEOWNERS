@@ -1,14 +1,13 @@
-# CODEOWNERS
-# Owners listed here are automatically requested for review on pull requests
-# that modify matching files. The last matching pattern takes precedence.
-# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# Generated from .github/owners.toml. Do not edit by hand;
+# edit the config and run .github/scripts/generate_codeowners.py
+#
+# The last matching pattern wins.
 
-# Default owner for everything in the repository
-*                       @purvatest2228
+# Default owners for everything
+*                       @purvatest2228 @purvishamanvar
 
-# Data files
-*.csv                   @purvatest2228
+# Catalog data
+*.csv                   @purvishamanvar
 
 # Repository and CI configuration
 /.github/               @purvatest2228
-/.github/CODEOWNERS     @purvatest2228

@@ -1,0 +1,58 @@
+name: Owners
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/owners.toml"
+      - ".github/CODEOWNERS"
+      - ".github/scripts/**"
+  push:
+    branches: [main]
+    paths:
+      - ".github/owners.toml"
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "Actually apply the changes (otherwise dry run)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  codeowners-in-sync:
+    name: CODEOWNERS in sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify CODEOWNERS matches owners.toml
+        run: PYTHONPATH=.github/scripts python3 .github/scripts/generate_codeowners.py --check
+
+  sync-collaborators:
+    name: Sync collaborators
+    # Dry run on pull requests; only a merge to main changes real access.
+    runs-on: ubuntu-latest
+    needs: codeowners-in-sync
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sync repository access from owners.toml
+        env:
+          # A fine-grained PAT with "Administration: read and write" on this
+          # repo. The default GITHUB_TOKEN cannot manage collaborators.
+          GITHUB_TOKEN: ${{ secrets.OWNERS_SYNC_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          APPLY: ${{ github.event_name == 'push' || inputs.apply }}
+        run: |
+          if [ -z "$GITHUB_TOKEN" ]; then
+            echo "::notice::OWNERS_SYNC_TOKEN is not set — skipping collaborator sync."
+            exit 0
+          fi
+          if [ "$APPLY" = "true" ]; then
+            PYTHONPATH=.github/scripts python3 .github/scripts/sync_collaborators.py --apply
+          else
+            echo "Dry run — access is only changed when this merges to main."
+            PYTHONPATH=.github/scripts python3 .github/scripts/sync_collaborators.py
+          fi

@@ -30,4 +30,13 @@ jobs:
           # Passed via env, never interpolated into the script body:
           # the PR description is untrusted input.
           PR_BODY: ${{ github.event.pull_request.body }}
-        run: python3 .github/scripts/check_pr_body.py
+        run: PYTHONPATH=.github/scripts python3 .github/scripts/check_pr_body.py
+
+  template-in-sync:
+    name: Template in sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify template matches pr-rules.toml
+        run: PYTHONPATH=.github/scripts python3 .github/scripts/generate_pr_template.py --check

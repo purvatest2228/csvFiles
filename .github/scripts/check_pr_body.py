@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Fail the build unless the pull request description is actually filled in.
 
+Rules come from .github/pr-rules.toml — the same file the template is
+generated from, so what the template asks for and what CI enforces stay
+identical.
+
 Reads the PR body from the PR_BODY environment variable (never from argv, so
 the untrusted description is not interpolated into a shell command) and the
 list of changed paths from changed_files.txt.
@@ -11,21 +15,15 @@ import pathlib
 import re
 import sys
 
-# Sections every PR must fill in.
-REQUIRED_SECTIONS = ["What changed", "Why", "How to verify"]
-
-# Only demanded when the PR actually touches data files.
-CONDITIONAL_SECTIONS = [("Data impact", lambda paths: any(p.endswith(".csv") for p in paths))]
-
-# A section needs at least this many real characters to count as filled.
-MIN_SECTION_CHARS = 10
+import pr_rules
 
 HTML_COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
 HEADING = re.compile(r"^\s{0,3}#{1,6}\s+(.*?)\s*#*\s*$", re.MULTILINE)
+UNCHECKED = re.compile(r"^\s*[-*]\s*\[ \]\s*(.+)$", re.MULTILINE)
 
 
 def split_sections(body):
-    """Return {heading_text: section_body} for every markdown heading."""
+    """Return {heading_text_lowercased: section_body} for every heading."""
     sections = {}
     matches = list(HEADING.finditer(body))
     for i, match in enumerate(matches):
@@ -48,37 +46,59 @@ def changed_paths():
     return [line.strip() for line in listing.read_text().splitlines() if line.strip()]
 
 
-def main():
-    body = os.environ.get("PR_BODY") or ""
-    errors = []
+def check_sections(config, sections, paths, errors):
+    minimum = config["min_section_chars"]
 
-    if not body.strip():
-        errors.append("The PR description is empty. Fill in the template.")
-        report(errors)
+    for section in config["sections"]:
+        title = section["title"]
+        found = sections.get(title.lower())
 
-    sections = split_sections(body)
-    paths = changed_paths()
+        if not pr_rules.is_required(section, paths):
+            continue
+        if found is None:
+            errors.append(f'Missing section: "## {title}"')
+            continue
 
-    expected = list(REQUIRED_SECTIONS)
-    for name, applies in CONDITIONAL_SECTIONS:
-        if applies(paths):
-            expected.append(name)
-
-    for name in expected:
-        section = sections.get(name.lower())
-        if section is None:
-            errors.append(f'Missing section: "## {name}"')
-        elif len(content_of(section)) < MIN_SECTION_CHARS:
+        content = content_of(found)
+        if len(content) < minimum:
             errors.append(
-                f'Section "## {name}" is empty or too short '
-                f"(needs at least {MIN_SECTION_CHARS} characters of real content)"
+                f'Section "## {title}" is empty or too short '
+                f"(needs at least {minimum} characters of real content)"
             )
+            continue
 
-    unchecked = re.findall(r"^\s*[-*]\s*\[ \]\s*(.+)$", body, re.MULTILINE)
+        for rule in section.get("must_match") or []:
+            if not re.search(rule["pattern"], content, re.MULTILINE):
+                errors.append(f'Section "## {title}": {rule["message"]}')
+
+
+def check_banned(config, body, errors):
+    stripped = HTML_COMMENT.sub("", body)
+    for rule in config["banned_phrases"]:
+        if re.search(rule["pattern"], stripped, re.MULTILINE):
+            errors.append(rule["message"])
+
+
+def check_checkboxes(config, body, errors):
+    if not config["require_all_checkboxes_ticked"]:
+        return
+    unchecked = UNCHECKED.findall(HTML_COMMENT.sub("", body))
     if unchecked:
         errors.append(f"{len(unchecked)} unchecked checklist item(s):")
         errors.extend(f"    - {item.strip()}" for item in unchecked)
 
+
+def main():
+    config = pr_rules.load()
+    body = os.environ.get("PR_BODY") or ""
+    errors = []
+
+    if not body.strip():
+        report(["The PR description is empty. Fill in the template."])
+
+    check_sections(config, split_sections(body), changed_paths(), errors)
+    check_banned(config, body, errors)
+    check_checkboxes(config, body, errors)
     report(errors)
 
 
@@ -88,8 +108,8 @@ def report(errors):
         for error in errors:
             print(f"  {error}", file=sys.stderr)
         print(
-            "\nEdit the pull request description to fix these, "
-            "then this check re-runs automatically.",
+            "\nRules live in .github/pr-rules.toml. Edit the pull request "
+            "description to fix these, then this check re-runs automatically.",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -99,5 +119,3 @@ def report(errors):
 
 if __name__ == "__main__":
     main()
-
-
