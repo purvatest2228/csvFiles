@@ -22,6 +22,9 @@ BANNER = (
 def render(config):
     parts = [BANNER]
 
+    if config["template_intro"].strip():
+        parts.append(f"<!--\n{config['template_intro'].strip()}\n-->\n")
+
     for section in config["sections"]:
         parts.append(f"## {section['title']}\n")
         if section.get("hint"):

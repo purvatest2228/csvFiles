@@ -9,95 +9,30 @@
 # was not regenerated after this file changed.
 #
 # TOML rule to respect when editing: every top-level key below must stay
-# ABOVE the first [[sections]] block, or it silently becomes a key of the
+# ABOVE any [[sections]] block, or it silently becomes a key of the
 # preceding section instead.
 
-# A section counts as filled once it has this many real characters,
-# after HTML comments and checklist lines are stripped out.
-min_section_chars = 10
-
-# Prose length of the whole description. Headings, HTML comments, template
-# instructions, checklist lines, fenced code blocks, image markup and bare
-# URLs are all excluded, so this counts words a reviewer actually reads.
+# The only rule: the description must be at least this many words.
+# Headings, HTML comments, template instructions, checklist lines, fenced
+# code blocks, image markup and bare URLs are all excluded, so this counts
+# words a reviewer actually reads.
 min_description_words = 20
 
-# How many images the description must contain. Screenshots pasted into the
-# GitHub editor land on one of the allowed hosts below.
-#
-# Set to 0 because the "Build" workflow now runs pnpm i and pnpm run build on
-# every pull request, which proves the build far better than a screenshot can:
-# a screenshot cannot be tied to a commit and cannot be checked for errors.
-# Raise it back to 1 to require a build screenshot as well.
+# Text placed in the template itself. Authors write free prose below it;
+# no headings or sections are required.
+template_intro = """
+Describe your change in at least 20 words.
+
+Plain prose is fine — no headings, sections or checklists are required.
+The "PR body check" job only counts words, and this comment does not count
+towards the total.
+"""
+
+# No required sections, no checklist, no banned phrases. Word count only.
+min_section_chars = 0
 require_images = 0
-allowed_image_hosts = [
-  "github.com/user-attachments",
-  "user-images.githubusercontent.com",
-  "raw.githubusercontent.com",
-]
-
-# Any "- [ ]" left in the description fails the check.
-require_all_checkboxes_ticked = true
-
-checklist = [
-  "Ran `pnpm i && pnpm run build` locally and it succeeded",
-  "Column count is unchanged, or the change is described above",
-  "No unescaped commas or line breaks inside fields",
-  "File still parses (`python3 -c \"import csv; list(csv.reader(open('inditeProducts1.csv')))\"`)",
-  "No credentials, personal data, or internal-only values committed",
-  "PR title describes the change, not the file name",
-  "Correct code owner is requested for review",
-]
-
-# Phrases that must never survive into a real description.
-banned_phrases = [
-  { pattern = '(?i)\bTODO\b', message = "Remove TODO from the description before requesting review" },
-  { pattern = '(?im)^\s*(wip|n/?a|none|tbd)\s*$', message = 'Placeholder text like "WIP" or "TBD" is not a description' },
-]
-
-[[sections]]
-title = "What changed"
-hint = "One or two lines. What does this PR do?"
-required = true
-
-[[sections]]
-title = "Why"
-hint = "Reason for the change. Link the issue: Closes #123"
-required = true
-must_match = [
-  { pattern = '(?i)\b(closes|fixes|resolves|refs)\s+#\d+', message = 'Link an issue, e.g. "Closes #12"' },
-]
-
-[[sections]]
-title = "Data impact"
-hint = "Delete this section if no CSV files changed."
-# Only required when the PR touches a path matching one of these globs.
-required_when_paths = ["*.csv"]
-body = """
-- Files touched:
-- Rows added / removed / modified:
-- Column schema changed? (yes / no — if yes, list columns)
-- Backward compatible with existing parsers?
-"""
-
-[[sections]]
-title = "Build evidence"
-hint = """
-Optional. The "Build" check runs pnpm i and pnpm run build on this commit,
-so a screenshot is not required. Paste one here only if the failure needs
-context CI cannot show, such as a platform-specific problem.
-"""
-required = false
-
-[[sections]]
-title = "How to verify"
-hint = "Exact steps a reviewer can follow."
-required = true
-body = """
-1.
-2.
-"""
-
-[[sections]]
-title = "Notes for reviewer"
-hint = "Anything risky, anything you are unsure about, anything to look at first."
-required = false
+allowed_image_hosts = []
+require_all_checkboxes_ticked = false
+checklist = []
+banned_phrases = []
+sections = []

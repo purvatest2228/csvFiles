@@ -15,6 +15,7 @@ CONFIG_PATH = pathlib.Path(".github/pr-rules.toml")
 TEMPLATE_PATH = pathlib.Path(".github/pull_request_template.md")
 
 DEFAULTS = {
+    "template_intro": "",
     "min_section_chars": 10,
     "min_description_words": 0,
     "require_images": 0,

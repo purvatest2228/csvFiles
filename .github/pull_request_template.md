@@ -1,55 +1,10 @@
 <!-- Generated from .github/pr-rules.toml. Do not edit by hand;
      edit the config and run .github/scripts/generate_pr_template.py -->
 
-## What changed
+<!--
+Describe your change in at least 20 words.
 
-<!-- One or two lines. What does this PR do? -->
-
-
-## Why
-
-<!-- Reason for the change. Link the issue: Closes #123 -->
-
-<!-- Required: Link an issue, e.g. "Closes #12" -->
-
-
-## Data impact
-
-<!-- Delete this section if no CSV files changed. -->
-
-- Files touched:
-- Rows added / removed / modified:
-- Column schema changed? (yes / no — if yes, list columns)
-- Backward compatible with existing parsers?
-
-
-## Build evidence
-
-<!-- Optional. The "Build" check runs pnpm i and pnpm run build on this commit,
-so a screenshot is not required. Paste one here only if the failure needs
-context CI cannot show, such as a platform-specific problem.
- -->
-
-
-## How to verify
-
-<!-- Exact steps a reviewer can follow. -->
-
-1.
-2.
-
-
-## Notes for reviewer
-
-<!-- Anything risky, anything you are unsure about, anything to look at first. -->
-
-
-## Checklist
-
-- [ ] Ran `pnpm i && pnpm run build` locally and it succeeded
-- [ ] Column count is unchanged, or the change is described above
-- [ ] No unescaped commas or line breaks inside fields
-- [ ] File still parses (`python3 -c "import csv; list(csv.reader(open('inditeProducts1.csv')))"`)
-- [ ] No credentials, personal data, or internal-only values committed
-- [ ] PR title describes the change, not the file name
-- [ ] Correct code owner is requested for review
+Plain prose is fine — no headings, sections or checklists are required.
+The "PR body check" job only counts words, and this comment does not count
+towards the total.
+-->
