@@ -1,2 +1,1 @@
-new file bu purvishamanvar because
- test codeowner.
+test github rules
