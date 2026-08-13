@@ -1,0 +1,14 @@
+# CODEOWNERS
+# Owners listed here are automatically requested for review on pull requests
+# that modify matching files. The last matching pattern takes precedence.
+# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything in the repository
+*                       @purvatest2228
+
+# Data files
+*.csv                   @purvatest2228
+
+# Repository and CI configuration
+/.github/               @purvatest2228
+/.github/CODEOWNERS     @purvatest2228
