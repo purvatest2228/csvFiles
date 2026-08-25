@@ -30,3 +30,12 @@ jobs:
 
       - name: pnpm run build
         run: pnpm run build
+
+      - name: Generate SBOM
+        run: pnpm dlx @cyclonedx/cdxgen -t js -o compliance/evidence/sbom/sbom.json .
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: compliance/evidence/sbom/sbom.json
