@@ -39,3 +39,40 @@ jobs:
         with:
           name: sbom
           path: compliance/evidence/sbom/sbom.json
+
+      # OSV-Scanner (Apache-2.0, google/osv-scanner) chosen over Snyk/Socket: those bill
+      # per-manifest and have monthly scan caps. OSV-Scanner has no usage cap and reads
+      # pnpm-lock.yaml directly. Pinned release, not curl|sh to main.
+      - name: Download OSV-Scanner
+        run: |
+          curl -sL -o /usr/local/bin/osv-scanner https://github.com/google/osv-scanner/releases/download/v2.5.0/osv-scanner_linux_amd64
+          chmod +x /usr/local/bin/osv-scanner
+
+      - name: SCA vulnerability scan (OSV-Scanner)
+        run: |
+          mkdir -p compliance/evidence/osv
+          osv-scanner scan source -r --lockfile=pnpm-lock.yaml \
+            --format json --output-file compliance/evidence/osv/osv-results.json . || true
+          osv-scanner scan source -r --lockfile=pnpm-lock.yaml --format table . || true
+
+      - name: Upload OSV-Scanner results
+        uses: actions/upload-artifact@v4
+        with:
+          name: osv-results
+          path: compliance/evidence/osv/osv-results.json
+
+      - name: Fail build on high+ severity vulnerabilities
+        run: |
+          node -e "
+            const d = require('./compliance/evidence/osv/osv-results.json');
+            const pkgs = d.results?.[0]?.packages || [];
+            const high = pkgs.filter(p =>
+              p.groups?.some(g => parseFloat(g.max_severity || '0') >= 7.0)
+            );
+            if (high.length) {
+              console.error('High+ severity vulnerabilities found:', high.length);
+              high.forEach(p => console.error(' -', p.package.name + '@' + p.package.version));
+              process.exit(1);
+            }
+            console.log('No high+ severity vulnerabilities found.');
+          "
