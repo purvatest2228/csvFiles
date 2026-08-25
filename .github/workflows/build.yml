@@ -1,0 +1,41 @@
+name: Build
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Version comes from the "packageManager" field in package.json.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: pnpm i
+        run: pnpm i
+
+      - name: pnpm run build
+        run: pnpm run build
+
+      - name: Generate SBOM
+        run: pnpm dlx @cyclonedx/cdxgen -t js -o compliance/evidence/sbom/sbom.json .
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: compliance/evidence/sbom/sbom.json

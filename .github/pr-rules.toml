@@ -1,0 +1,38 @@
+# Single source of truth for pull request descriptions.
+#
+# Edit this file, then run:
+#     python3 .github/scripts/generate_pr_template.py
+# to regenerate .github/pull_request_template.md.
+#
+# CI enforces both: the "PR body check" job validates descriptions against
+# these rules, and the "Template in sync" job fails if the generated template
+# was not regenerated after this file changed.
+#
+# TOML rule to respect when editing: every top-level key below must stay
+# ABOVE any [[sections]] block, or it silently becomes a key of the
+# preceding section instead.
+
+# The only rule: the description must be at least this many words.
+# Headings, HTML comments, template instructions, checklist lines, fenced
+# code blocks, image markup and bare URLs are all excluded, so this counts
+# words a reviewer actually reads.
+min_description_words = 20
+
+# Text placed in the template itself. Authors write free prose below it;
+# no headings or sections are required.
+template_intro = """
+Describe your change in at least 20 words.
+
+Plain prose is fine — no headings, sections or checklists are required.
+The "PR body check" job only counts words, and this comment does not count
+towards the total.
+"""
+
+# No required sections, no checklist, no banned phrases. Word count only.
+min_section_chars = 0
+require_images = 0
+allowed_image_hosts = []
+require_all_checkboxes_ticked = false
+checklist = []
+banned_phrases = []
+sections = []

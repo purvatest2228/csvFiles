@@ -1,0 +1,15 @@
+{
+  "name": "csv-files",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Product catalog CSV feeds",
+  "packageManager": "pnpm@10.30.3",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "sbom": "cdxgen -t js -o compliance/evidence/sbom/sbom.json ."
+  },
+  "dependencies": {
+    "date-fns": "^4.4.0",
+    "lodash": "^4.18.1"
+  }
+}

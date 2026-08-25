@@ -1,0 +1,42 @@
+name: PR body check
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: PR body check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Collect changed files
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git diff --name-only "$BASE_SHA" "$HEAD_SHA" > changed_files.txt
+          cat changed_files.txt
+
+      - name: Validate PR description
+        env:
+          # Passed via env, never interpolated into the script body:
+          # the PR description is untrusted input.
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: PYTHONPATH=.github/scripts python3 .github/scripts/check_pr_body.py
+
+  template-in-sync:
+    name: Template in sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify template matches pr-rules.toml
+        run: PYTHONPATH=.github/scripts python3 .github/scripts/generate_pr_template.py --check

@@ -1,0 +1,42 @@
+# Single source of truth for who owns what, and what access they hold.
+#
+# Edit this file, then run:
+#     python3 .github/scripts/generate_codeowners.py
+# to regenerate .github/CODEOWNERS.
+#
+# On push to main, the "Sync collaborators" workflow applies the permissions
+# below to the repository: people are added or have their permission
+# corrected, and anyone holding direct access who is NOT listed here is
+# removed. Deleting someone from this file therefore revokes their access.
+
+# Valid permissions: pull, triage, push, maintain, admin.
+# A code owner needs "push" or higher, otherwise GitHub silently ignores
+# their CODEOWNERS entries.
+
+[[people]]
+handle = "purvatest2228"
+permission = "admin"
+# Never removed by the sync, even if accidentally deleted from this file.
+protected = true
+
+[[people]]
+handle = "purvishamanvar"
+permission = "push"
+
+# Ownership rules are written to CODEOWNERS in order.
+# CODEOWNERS semantics: the LAST matching pattern wins.
+
+[[rules]]
+pattern = "*"
+owners = ["purvatest2228", "purvishamanvar"]
+comment = "Default owners for everything"
+
+[[rules]]
+pattern = "*.csv"
+owners = ["purvishamanvar"]
+comment = "Catalog data"
+
+[[rules]]
+pattern = "/.github/"
+owners = ["purvatest2228"]
+comment = "Repository and CI configuration"
